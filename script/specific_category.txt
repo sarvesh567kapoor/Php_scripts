@@ -1,0 +1,17 @@
+﻿ 
+
+
+
+global $product;
+
+
+ $var2 = $product->category_ids;
+
+
+$var8= '<div class="col-sm-4 prod_spec">
+<img src="https://vetopropac.com/wp-content/uploads/2021/02/Dimensions-02.png"/> </div>';
+
+
+if(!in_array("298",$var2)){
+		 echo $var8;
+	 }

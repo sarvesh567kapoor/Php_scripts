@@ -1,0 +1,2 @@
+$res = $wpdb->get_results('SELECT wp_postmeta.post_id, wp_postmeta.meta_value FROM wp_postmeta INNER JOIN wp_posts ON wp_postmeta.post_id = wp_posts.ID WHERE wp_postmeta.meta_key = "old_prod_id" AND wp_posts.post_type = "product" ');
+

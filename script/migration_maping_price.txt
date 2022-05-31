@@ -1,0 +1,66 @@
+<?php
+echo"hello";
+include dirname(dirname(dirname(dirname(__FILE__))))."/wp-load.php";
+require_once( ABSPATH . '/wp-admin/includes/taxonomy.php');
+global $wpdb;
+$result=array();
+$query=$wpdb->get_results('SELECT wp_postmeta.post_id,wp_postmeta.meta_value from wp_postmeta INNER JOIN wp_posts on wp_posts.ID=wp_postmeta.post_id  WHERE wp_postmeta.meta_key="old_prod_id" and wp_posts.post_type="product"');
+foreach($query as $res){
+	array_push($result, array('old' => $res->meta_value, 'new' => $res->post_id));
+}
+echo '<pre>';
+// var_dump($result);
+// die;
+if (($handle = fopen(__DIR__."/new3prod.csv", "r")) !== FALSE) {
+$j=0;
+$arr = array();
+$row = 0;
+echo '<pre>';
+while (($data = fgetcsv($handle)) !== FALSE) {
+	
+foreach($result as $re){
+	if($re['old']==$data[0]){
+		$id=$re['new'];
+		$var2=$re["old"];
+		break;
+	}
+}
+	echo "<pre>";
+	if(!is_null($id)){
+	
+	
+ $price=get_post_meta($id,"_price",true);
+	if(empty($price)){
+		var_dump($id);
+// 		update_post_meta($id,"_price",$data[1]);
+		
+	}
+		
+	}	
+$num = count($data);
+
+if($row<10){
+//	var_dump($data);
+}
+	$row++;
+	}
+	fclose($handle);
+}
+		
+		
+    		
+
+	
+	
+
+
+
+
+
+
+
+
+
+
+
+

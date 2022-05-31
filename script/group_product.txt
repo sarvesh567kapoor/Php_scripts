@@ -1,0 +1,48 @@
+<?php
+include dirname(dirname(dirname(dirname(__FILE__))))."/wp-load.php";
+require_once( ABSPATH . '/wp-admin/includes/taxonomy.php');
+global $wpdb;
+$result=array();
+$query=$wpdb->get_results('SELECT wp_postmeta.post_id,wp_postmeta.meta_value from wp_postmeta INNER JOIN wp_posts on wp_posts.ID=wp_postmeta.post_id  WHERE wp_postmeta.meta_key="old_prod_id" and wp_posts.post_type="product"');
+foreach($query as $res){
+	array_push($result, array('old' => $res->meta_value, 'new' => $res->post_id));
+}
+echo '<pre>';
+//  var_dump($result);
+
+if (($handle = fopen(__DIR__."/Product_new_cobination.csv", "r")) !== FALSE) {
+$j=0;
+$arr = array();
+$row = 0;
+echo '<pre>';
+while (($data = fgetcsv($handle)) !== FALSE) {
+	
+foreach($result as $re){
+	if($re['old']==$data[0]){
+		$product_id=$re['new'];//your product ID
+	    $var2=$re["old"];
+		
+         wp_remove_object_terms( $product_id, 'simple', 'product_type' );
+         wp_set_object_terms( $product_id, 'grouped', 'product_type', true );
+	   
+	    var_dump($product_id);
+		break;
+	}
+}
+	if($id!=NULL){
+// 		var_dump($id);
+
+
+
+	}
+}
+	fclose($handle);
+
+}
+
+
+
+
+?>
+
+

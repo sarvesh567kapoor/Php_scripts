@@ -1,0 +1,127 @@
+﻿function testing() { 
+	$paged = get_query_var('paged') ? get_query_var('paged'):1;
+ 
+// $meta = get_post_meta( 5845, FALSE, TRUE);
+// echo "<pre>";
+// var_dump($meta);
+// echo get_the_post_thumbnail( 5845, 'thumbnail', array( 'class' => 'alignleft' ) );
+	
+// $posttype = get_post_types([], 'objects');
+// 	echo "<pre>";
+// 	var_dump($posttype);
+//     echo get_the_post_thumbnail_url( 5845,'_thumbnail_id');
+   echo '<section class="recent-projects events">
+   <div class="auto-container">
+        
+        <!--Sortable Gallery-->
+        <div class="mixitup-gallery">
+        
+             
+            <div class="filter-list">';
+            $today = date('Y-m-d');
+             $argss1 = array( 'post_type' => 'breno-event', 
+      'meta_query' => array(
+   array(
+     'key' => 'breno_event_start_date',
+     'value' => $today,
+     'compare' => '<',
+   )),
+    'post_status' => 'publish',
+     'meta_type' => 'text_date_timestamp',
+     'posts_per_page' => '3',
+     'paged' => $paged,
+    'orderby'   => 'breno_event_start_date',
+    'order'     => 'desc',
+    
+    );
+
+             $loop = new WP_Query( $argss1);
+
+             if($loop){
+              echo '';
+             }
+
+while ( $loop->have_posts() ) : $loop->the_post();
+     $read_more = get_permalink( $post->ID );
+    $content = get_the_content();
+    $url = get_the_post_thumbnail_url( get_the_ID(),'post-thumbnail');
+    $img = get_the_post_thumbnail(get_the_ID(), array(370, 280) );
+    if(get_post_type()=='breno-event'){
+        $event_date1 = get_post_meta( get_the_ID(), 'breno_event_start_date', true );
+         $event_date = date('F j, Y', strtotime( $event_date1));
+       $event_time_from = get_post_meta( get_the_ID(), 'breno_event_time', true );
+        $event_time_from = date('g:i
+ a', strtotime( $event_time_from));
+       
+       $event_time_to = get_post_meta( get_the_ID(), 'breno_event_time', true );
+       $event_time_to = date('g:i
+ a', strtotime( $event_time_to));
+       if(!empty($event_time_to)){
+        $event_time = $event_time_from;
+       }else{
+        $event_time = $event_time_from;
+       }
+
+      }
+
+            echo  '<div class="gallery-block col-md-4 col-sm-6 col-xs-12 mix mix_all environment recycling  " style="display: inline-block;">
+                <div class="inner-box">
+                    <div class="image-box">'.$img.'                <div class="overlay-box">
+                            <div class="content">
+			                <div class="event-category" '.$event_date1.$today.'><div class="edate">'.$event_date.'</div></div>				
+                                <a href="'.$read_more.'"><span class="icon fa fa-picture-o"></span></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div  class="lower-box">
+                        <h3><a href="'.$read_more.'">'.get_the_title().'</a></h3>
+                                  <span class="category"><a href="'.$read_more.'">Learn More</a></span>
+                    </div>
+                </div>
+            </div>';
+    
+
+    
+unset($event_time);
+unset($event_date);
+endwhile;
+/*global $wp;
+$current_url = home_url( $wp->request );*/
+add_query_arg( array(
+    'post_type' => $post_type,
+), '/wp-admin/admin-ajax.php');
+	
+$previous_link_url = paginate_links( array(
+'base' => str_replace( 999999999, '%#%', esc_url( get_pagenum_link( 999999999 ) ) ),
+'total' => $loop->max_num_pages,
+'current' => max(
+1, $paged ),
+'format' => 'page/%#%',
+'add_args' => false,
+'show_all' => false,
+'type' => 'plain',
+'end_size' => 2,
+'mid_size' => 1,
+'next_or_number' => 'next_and_number', # activate parameter overloading
+'before' => '<p>',
+'after' => '</p>',
+'prev_next' => true,
+'prev_text' => sprintf( '<i></i> %1$s', __( 'Previous', 'text-domain' ) ),
+'next_text' => sprintf( '%1$s <i></i>', __( 'Next', 'text-domain' ) ),
+'add_fragment' => '',
+) );
+
+
+echo '<div class="pageination-center">
+<div class="pagination">'.$previous_link_url.'</div></div>';
+	
+wp_reset_query();
+
+      
+    
+           echo '<div class="text-center">
+         </div>
+        
+    </div></section>';
+   
+}

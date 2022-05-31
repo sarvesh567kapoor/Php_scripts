@@ -1,0 +1,142 @@
+<?php 
+include dirname(dirname(dirname(dirname(__FILE__))))."/wp-load.php";
+require_once( ABSPATH . '/wp-admin/includes/taxonomy.php');
+
+
+if (($handle = fopen(__DIR__."/new_product_parent.csv", "r")) !== FALSE) {
+
+$arr = array();
+$row = 0;
+	
+echo '<pre>';
+while (($data = fgetcsv($handle)) !== FALSE) {
+
+$num = count($data);
+//var_dump($data);
+if($row != 0){
+//var_dump($data[0]);
+
+if(sizeof(array([$data[0]])) == 0 ){
+
+	$arr[$data[0]] = array();
+}
+
+else{
+	$arr[$data[0]]['vendorpartno'] = $data[0];
+	$arr[$data[0]]['productname'] = $data[2];	
+	$arr[$data[0]]['begindate'] = $data[3];
+	$arr[$data[0]]['enddate'] = $data[4];
+	$arr[$data[0]]['hideproduct'] = $data[5];
+	$arr[$data[0]]['parentcode'] = $data[12];
+	$arr[$data[0]]['autodropship'] = $data[19];
+	$arr[$data[0]]['backorder'] = $data[20];
+        $arr[$data[0]]['upc_code'] = $data[25];
+        $arr[$data[0]]['productkeywords'] = $data[26];
+        $arr[$data[0]]['productnameshort'] = $data[27];
+        $arr[$data[0]]['productweight'] = $data[28];
+	$arr[$data[0]]['freeshippingitem'] = $data[29];
+        $arr[$data[0]]['minqty'] = $data[30];
+        $arr[$data[0]]['maxqty'] = $data[31];
+        $arr[$data[0]]['productprice'] = $data[38];
+        $arr[$data[0]]['listprice'] = $data[39];
+	$arr[$data[0]]['saleprice'] = $data[40];
+        $arr[$data[0]]['metatag_title'] = $data[46];
+        $arr[$data[0]]['metatag_description'] = $data[47];
+        $arr[$data[0]]['photo_subtext'] = $data[53];
+	$arr[$data[0]]['photo_alttext'] = $data[54];
+        $arr[$data[0]]['hide_yousave'] = $data[68];
+        $arr[$data[0]]['hide_freeaccessories'] = $data[69];
+        $arr[$data[0]]['addtocartbtn_replacement_text'] = $data[81];
+	$arr[$data[0]]['productcondition'] = $data[83];
+        $arr[$data[0]]['estship_ground'] = $data[84];
+        $arr[$data[0]]['estship_2ndday'] = $data[85];
+        $arr[$data[0]]['estship_overnight'] = $data[86];
+	$arr[$data[0]]['productmanufacturer'] = $data[95];
+        $arr[$data[0]]['hide_when_outofstock'] = $data[96];
+        $arr[$data[0]]['photourl_large'] = $data[108];
+        $arr[$data[0]]['photourl_small'] = $data[107];
+	$arr[$data[0]]['breadcrumb'] = $data[115];
+        $arr[$data[0]]['oversized'] = $data[121];
+        $arr[$data[0]]['additional_handling_indicator'] = $data[122];
+        $arr[$data[0]]['productdescriptionshort'] = $data[124];
+	$arr[$data[0]]['productdescription'] = $data[125];
+	$arr[$data[0]]['metatag_keywords'] = $data[130];
+	$arr[$data[0]]['productdescription_abovepricing'] = $data[131];
+	$arr[$data[0]]['google_size'] = $data[135];
+	$arr[$data[0]]['google_color'] = $data[136];
+        $arr[$data[0]]['google_gender'] = $data[137];
+        $arr[$data[0]]['google_age_group'] = $data[138];
+        $arr[$data[0]]['google_availability'] = $data[139];
+	$arr[$data[0]]['nonshippable'] = $data[147];
+        $arr[$data[0]]['categoryids'] = $data[159];
+        $arr[$data[0]]['optionids'] = $data[160];
+
+
+}
+		}
+$row++;
+}
+fclose($handle);
+// var_dump($arr);
+
+}
+
+
+
+
+global $wpdb;
+
+
+$old_new_id_map = array();
+$result2=array();
+
+$query2=$wpdb->get_results('SELECT wp_postmeta.post_id,wp_postmeta.meta_value from wp_postmeta INNER JOIN wp_posts on wp_posts.ID=wp_postmeta.post_id  WHERE wp_postmeta.meta_key="old_prod_id" and wp_posts.post_type="product"');
+$res = $wpdb->get_results("SELECT wp_termmeta.term_id, wp_termmeta.meta_value FROM wp_termmeta WHERE wp_termmeta.meta_key = 'old_cat_id'");
+
+
+
+foreach($query2 as $res2){
+	array_push($result2,array('old_id'=> $res2->meta_value,'id'=> $res2->post_id));
+}
+
+foreach($res as $c){
+array_push($old_new_id_map, $c->meta_value,  $c->term_id);
+}
+
+echo "<pre>";
+// var_dump($result2);
+ foreach($result2 as $res3){
+ 
+foreach($arr as $key=>$val){
+	 if($res3['old_id']==$val['vendorpartno'])
+	 {
+		 
+		 $cat_arr = explode(',', $val['categoryids']);
+		 var_dump($val['categoryids']);
+		 
+// 		 var_dump($cat_arr);
+// 		 var_dump($res3['id']);
+		 $taxonomy_name="product_cat" ;
+
+	     var_dump($res3['id']);
+// 		 print_r($cat_arr);
+		 $array1 = array_values($cat_arr);
+// 		  print_r($array1); 
+ 		 
+         wp_set_post_terms($res3['id'], $val['categoryids'], $taxonomy_name, true);
+		  
+	echo"//true\n";
+}		
+       }
+		
+	 }
+ 
+ 
+	
+
+
+
+
+
+
+

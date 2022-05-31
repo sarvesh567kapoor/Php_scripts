@@ -1,0 +1,166 @@
+<?php
+
+include dirname(dirname(dirname(dirname(__FILE__))))."/wp-load.php";
+require_once( ABSPATH . '/wp-admin/includes/taxonomy.php');
+global $wpdb;
+$result=array();
+$result2=array();
+$query=$wpdb->get_results('SELECT wp_postmeta.post_id,wp_postmeta.meta_value from wp_postmeta INNER JOIN wp_posts on wp_posts.ID=wp_postmeta.post_id  WHERE wp_postmeta.meta_key="old_prod_id" and wp_posts.post_type="product_variation"');
+$query2=$wpdb->get_results('SELECT wp_postmeta.post_id,wp_postmeta.meta_value from wp_postmeta INNER JOIN wp_posts on wp_posts.ID=wp_postmeta.post_id  WHERE wp_postmeta.meta_key="old_prod_id" and wp_posts.post_type="product"');
+foreach($query as $res){
+	array_push($result,  $res->meta_value, $res->post_id);
+}
+foreach($query2 as $res2){
+	array_push($result2,  $res2->meta_value, $res2->post_id);
+}
+
+echo '<pre>';
+echo"hello";
+// var_dump($result2);
+//   var_dump($result);
+//   echo sizeof($result);
+
+
+
+if (($handle = fopen(__DIR__."/Product_new_cobination.csv", "r")) !== FALSE and ($handle2 = fopen(__DIR__."/new2group.csv", "r"))!== FALSE) {
+$j=0;
+$arr = array();
+	$arr_new1=array();
+	$arr_new2=array();
+$row = 0;
+echo '<pre>';
+while(($data2 = fgetcsv($handle2)) !== FALSE) {
+	
+// var_dump($data2);
+     if($data2[1]!=""){
+	array_push($arr, array('product' => $data2[0], 'parent' => $data2[1]));
+	 }
+}
+// var_dump($arr);
+
+	
+	foreach($arr as $re){
+		
+	
+        if (in_array($re['product'], $result, TRUE)) {
+			$key = array_search($re['product'], $result);
+// 			var_dump($result[$key+1]);
+			array_push($arr_new1, array('parent_product' => $re['parent'], "child_id_to_link" => $result[$key+1]));
+			
+			
+		}
+		else {
+// 			$handle4 = fopen(__DIR__."/child1.txt", "a");
+// 			fwrite($handle4,$re['product']);
+// 			fwrite($handle4, "\n");
+// 			fclose($handle4);
+	
+		}
+// 		if($re['product']==$result[0]['old']){
+// 			$product_id=$re['new'];
+// 			//var_dump($product_id);
+			
+// 		}
+	
+	}
+
+	
+// 	var_dump($arr_new1);
+// // 	
+
+	foreach($arr_new1 as $re3){
+		if (in_array($re3['parent_product'], $result2, TRUE)) {
+			
+				$key2 = array_search($re3['parent_product'], $result2);
+			array_push($arr_new2, array('parent_product_old_id' => $re3['parent_product'],'parent_product_id' => $result2[$key2+1], "child_id_to_link_id" =>  $re3['child_id_to_link']));
+			
+		}
+		else {
+// 			$handle5 = fopen(__DIR__."/parent1.txt", "a");
+// 			fwrite($handle5,$re3['parent_product']);
+// 			fwrite($handle5, "\n");
+// 			fclose($handle5);
+			
+		}
+		
+		
+		
+	}
+	var_dump($arr_new2);
+	
+
+	
+// // 	for($i=0;$i<)
+	
+	
+//  	$array2_append=array();
+// 	$parentProductIdVerify="";
+// 	$previousValue="";
+
+// 	foreach($arr_new2 as $re4){
+// // 		var_dump($re4);
+		
+// 		$parentProductIdVerify=$re4["parent_product_id"];
+// 		$prviousValue=$parentProductIdVerify;
+//  		if($re4["parent_product_id"]==$parentProductIdVerify)
+// 		{
+// 			if($previousValue==$parentProductIdVerify){
+// 				$var3=$re4["child_id_to_link_id"];
+// 		array_push($array2_append,$var3);
+// 	    var_dump($array2_append);
+//  		update_post_meta($re4["parent_product_id"],"_children",$array2_append);
+// 				 $previousValue=$re4["parent_product_id"];
+// 			}
+// 			else{
+// 			$array2_append=[];
+// 			$var3=$re4["child_id_to_link_id"];
+// 		array_push($array2_append,$var3);
+// 				var_dump($array2_append);
+// // 		update_post_meta($re4["parent_product_id"],"_children",["12345"]);
+// 				$previousValue=$re4["parent_product_id"];
+// 			}
+		
+// 		}
+		
+// 	}
+					fclose($handle);
+		fclose($handle2);
+}
+
+	
+	
+// 	fclose($handle2);
+	
+// while (($data = fgetcsv($handle)) !== FALSE) {
+
+
+// // 	if($data[0]==$data2[1])
+// // 		{
+// // 			var_dump($data2[0]);
+// // 		}
+// foreach($arr as $re){
+// 	if($re['parent']==$data[0]){
+// // 		echo"helllo";
+// // 		var_dump($re['product']);
+// // 		$product_id=$re['new'];//your product ID
+// // 	    $var2=$re["old"];
+		
+		
+        
+// 	    //var_dump($product_id);
+// 		break;
+// 	}
+// }
+
+// }
+	
+
+// 	fclose($handle);
+// }
+
+
+
+
+?>
+
+

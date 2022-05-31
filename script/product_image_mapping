@@ -1,0 +1,217 @@
+<?php
+echo 'djjjjjjjjjjjjjjjj';
+// die;
+include dirname(dirname(dirname(dirname(__FILE__))))."/wp-load.php";
+require_once( ABSPATH . '/wp-admin/includes/taxonomy.php');
+
+
+if (($handle2 = fopen(__DIR__."/new_product_parent.csv", "r")) !== FALSE) {
+	
+
+
+$res = $wpdb->get_results('SELECT wp_postmeta.post_id, wp_postmeta.meta_value FROM wp_postmeta INNER JOIN wp_posts ON wp_postmeta.post_id = wp_posts.ID WHERE wp_postmeta.meta_key = "old_prod_id" AND wp_posts.post_type = "product" ORDER BY wp_posts.ID ASC');
+
+$old_new_id_map = array();
+	
+while (($data2 = fgetcsv($handle2)) !== FALSE) {
+foreach($res as $post){
+	if($post->meta_value==$data2[0])
+	{
+	array_push($old_new_id_map, array('old' => $post->meta_value, 'new' => $post->post_id));
+	}
+
+}
+}
+	
+}
+
+
+
+
+
+
+
+
+
+
+if (($handle = fopen(__DIR__."/product_images.csv", "r")) !== FALSE) {
+	$arr = array();
+	$row = 0;
+	echo '<pre>';
+	$j=1;
+  	while (($data = fgetcsv($handle)) !== FALSE) {
+		$j=1;
+			foreach($old_new_id_map as $new){
+        	if($data[0] == $new['old']){
+                       	$id = $new['new'];
+				$j=0;
+				break;
+                }
+       	}
+	//	var_dump($id);
+		if($j==0){
+			$num = count($data);
+    		//var_dump($data);
+		if($row != 0){
+// 			var_dump($data[0]);
+
+			$arr[$id] = array();
+
+			for($i = 1; $i < 27; $i++){
+				//var_dump($i);
+				if(strlen($data[$i]) != 0){
+					//var_dump($data[$i]);
+					//var_dump(strlen($data[$i]));
+				array_push($arr[$id], $data[$i]);
+					//var_dump($arr[$data[0]]);
+				}
+			}
+			
+		}
+		$row++;
+	}
+	}
+	
+	fclose($handle);
+// 	var_dump($arr);
+// 	die;
+	
+}
+
+// var_dump($old_new_id_map);
+
+
+$all_prods = get_posts( array(
+     'posts_per_page' => -1,
+     'post_type'      => 'product',
+) );
+
+
+foreach($arr as $key=>$val){
+
+	$id=$key;
+	
+	
+        //var_dump($val);
+	
+	$gallery = '';
+
+	$check = get_post_meta($id, '_thumbnail_id')[0];
+	var_dump($check);
+	if(!($check)){
+	for($j =0; $j < sizeof($val); $j++){
+		$image = $val[$j];
+                $end = end(explode('/', $image));
+                $imagename = explode('.', $end);
+		$url = 'https://themanstoreonline.ebizontech.biz/wp-content/uploads/clientsideimages/'.$end;
+			
+		var_dump($url);
+		var_dump($image);
+			
+		if($j == 0){
+			$attachment_id =  fetch_media($url, $id, $end);	
+			var_dump($attachment_id);
+			update_post_meta($id, '_thumbnail_id', $attachment_id);
+		}
+		else{
+			$attachment_id =  fetch_media($url, $id, $end);
+			if($j == 1)
+				$gallery .= $attachment_id;
+			else
+				$gallery .= ', '.$attachment_id;	
+			
+		}
+		$attachment_id = '';
+	}
+	if(strlen($gallery) != 0){
+		update_post_meta($id, '_product_image_gallery', $gallery);
+		//var_dump($gallery);
+	}
+	}
+	
+}
+
+
+function fetch_media($file_url, $post_id, $image) {
+     	var_dump($file_url);
+	var_dump($post_id);
+	var_dump($image);
+     	require_once(ABSPATH . 'wp-load.php');
+    	require_once(ABSPATH . 'wp-admin/includes/image.php');
+
+    	if(!$post_id) {
+        	return false;
+    	}
+
+
+    	//directory to import to    
+    	$artDir = 'wp-content/uploads/productimages/';
+
+    	//if the directory doesn't exist, create it 
+    	if(!file_exists(ABSPATH.$artDir)) {
+        	mkdir(ABSPATH.$artDir);
+		chmod($artDir, 0777);
+    	}
+
+	//make sure the file actually exists
+	//var_dump(fopen($file_url, "r"));
+	//var_dump(error_get_last());
+	
+	var_dump(fopen($file_url, "r"));
+	//var_dump(error_get_last());
+	//var_dump(ABSPATH.$artDir.$image);
+	//var_dump(copy($file_url, ABSPATH.$artDir.$image));
+     	if (@fclose(@fopen($file_url, "r"))) { 
+        	
+        	
+		copy($file_url, ABSPATH.$artDir.$image);	
+        $siteurl = get_option('siteurl');
+        $file_info = getimagesize(ABSPATH.$artDir.$image);
+
+        //create an array of attachment data to insert into wp_posts table
+        $artdata = array();
+        $artdata = array(
+            'post_author' => 1, 
+            'post_date' => current_time('mysql'),
+            'post_date_gmt' => current_time('mysql'),
+            'post_title' => $image, 
+            'post_status' => 'inherit',
+            'comment_status' => 'closed',
+            'ping_status' => 'closed',
+            'post_name' => sanitize_title_with_dashes(str_replace("_", "-", $image)),                                            
+            'post_modified' => current_time('mysql'),
+            'post_modified_gmt' => current_time('mysql'),
+            'post_parent' => $post_id,
+            'post_type' => 'attachment',
+            'guid' => $siteurl.'/'.$artDir.$image,
+            'post_mime_type' => $file_info['mime'],
+            'post_excerpt' => '',
+            'post_content' => ''
+        );
+      
+	//var_dump($artdata);
+
+        $uploads = wp_upload_dir();
+        $save_path = $uploads['basedir'].'/productimages/'.$image;
+
+        //insert the database record
+        $attach_id = wp_insert_attachment( $artdata, $save_path, $post_id );
+         if(is_wp_error($attach_id)){
+             echo $attach_id->get_error_message();
+            }
+
+        //generate metadata and thumbnails
+        if ($attach_data = wp_generate_attachment_metadata( $attach_id, $save_path)) {
+            wp_update_attachment_metadata($attach_id, $attach_data);
+        }
+
+	}
+	else {
+        	return false;
+    	}
+
+    return $attach_id;
+}
+
+
+

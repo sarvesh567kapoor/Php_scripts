@@ -1,0 +1,92 @@
+﻿add_shortcode( 'event-filter-shortcode', 'event_filter_shortcode_function' );
+function event_filter_shortcode_function() {
+	$paged = get_query_var('paged') ? get_query_var('paged'):1;
+
+	$loop = new WP_Query( array(
+
+ 
+
+        'post_type' => 'post',
+        'post_status' => 'publish',
+        'posts_per_page' => -1,
+		'paged' => $paged,  
+              
+) 
+);
+	 
+echo '<div class="grid_tap">';
+while ( $loop->have_posts() ) : $loop->the_post();
+
+$post_id            = get_the_ID();
+$link               = get_post_permalink($post_id);
+$title              = get_the_title();
+$post_thumbnail_url = get_the_post_thumbnail_url( $post_id, 'medium_large' );
+$post_author        = get_post_meta($post_id, 'author_name' , true );
+$post_date	        = get_the_date( 'dS M Y', $post_id );
+if($post_id == 20228 or $post_id == 20223 or $post_id == 300 or $post_id == 6748 or $post_id == 11947)
+{
+echo '
+             <div class="blogs-inner">
+          
+                <div class="blog-image">
+                       <a target="_blank" href="'.$link.'"><img src="'.esc_url($post_thumbnail_url).'"></a>
+					   
+					  
+               </div>
+             <div class="text_info">
+     <div class="title-blog">  <h5 class="tmnf_title1"><a target="_blank" href="'.$link.'">'.$title.'</a></h5></div>
+	  <div class="title-author">  <h5 class="tmnf_author">Authors: '.$post_author.'</h5></div>
+	  <div class="title-date">  <h5 class="tmnf_date">'.$post_date.'</h5></div>
+	 
+   <div class="post-blog">  <h5 class="post_view1"><a target="_blank" href="'.$link.'">More</a></h5></div>
+    </div> 
+    </div>   
+  
+    ';
+}
+elseif($post_id == 93187){
+	echo '
+             <div class="blogs-inner">
+          
+                <div class="blog-image1">
+                       <a target="_blank" href="'.$link.'"><img src="'.esc_url($post_thumbnail_url).'"></a>
+					   
+					  
+               </div>
+             <div class="text_info">
+     <div class="title-blog">  <h5 class="tmnf_title1"><a target="_blank" href="'.$link.'">'.$title.'</a></h5></div>
+	  <div class="title-author">  <h5 class="tmnf_author">Authors: '.$post_author.'</h5></div>
+	  <div class="title-date">  <h5 class="tmnf_date">'.$post_date.'</h5></div>
+	 
+   <div class="post-blog">  <h5 class="post_view1"><a target="_blank" href="'.$link.'">More</a></h5></div>
+    </div> 
+    </div>   
+  
+    ';
+	
+}
+elseif($post_id == 93182) {
+	echo '
+             <div class="blogs-inner">
+          
+                <div class="blog-image1">
+                       <a target="_blank" href="'.$link.'"><img src="'.esc_url($post_thumbnail_url).'"></a>
+					   
+					  
+               </div>
+             <div class="text_info">
+     <div class="title-blog">  <h5 class="tmnf_title1"><a target="_blank" href="'.$link.'">'.$title.'</a></h5></div>
+	  <div class="title-author">  <h5 class="tmnf_author">Authors: '.$post_author.'</h5></div>
+	  <div class="title-date">  <h5 class="tmnf_date">'.$post_date.'</h5></div>
+	 
+   <div class="post-blog">  <h5 class="post_view1"><a target="_blank" href="'.$link.'">More</a></h5></div>
+    </div> 
+    </div>   
+  
+    ';
+	
+}
+	
+endwhile;
+wp_reset_query();
+}

@@ -1,0 +1,41 @@
+<?php
+include dirname(dirname(dirname(dirname(__FILE__))))."/wp-load.php";
+require_once( ABSPATH . '/wp-admin/includes/taxonomy.php');
+
+
+
+global $wpdb;
+
+
+$old_new_id_map = array();
+$result2=array();
+$result3=array();
+$result4=array();
+
+
+$query2=$wpdb->get_results('SELECT post_id , meta_key, meta_value  FROM `wp_2_postmeta` WHERE `meta_key` LIKE "old_type" AND `meta_value` LIKE "RegionalSupplier"');
+//$res = $wpdb->get_results("SELECT wp_termmeta.term_id, wp_termmeta.meta_value FROM wp_termmeta WHERE wp_termmeta.meta_key = 'old_cat_id'");
+
+
+foreach($query2 as $res2){
+        array_push($result2,array('old_type'=> $res2->meta_value,'id'=> $res2->post_id));
+}
+
+
+
+echo "<pre>";
+//var_dump($result2);
+
+
+foreach($result2  as  $res) {
+              var_dump($res['id']);
+
+              $taxonomy_name="listing-category";
+              wp_set_post_terms($res['id'], '160', $taxonomy_name ,true);
+
+
+
+}
+
+
+

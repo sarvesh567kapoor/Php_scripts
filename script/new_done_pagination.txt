@@ -1,0 +1,136 @@
+﻿add_shortcode( 'shortcode', 'event_filter_sc_function' );
+function event_filter_sc_function( ) {
+	$paged = get_query_var('paged') ? get_query_var('paged'):1;
+
+	$loop = new WP_Query( array(
+
+ 
+
+               'post_type' => 'product',
+        'post_status' => 'publish',
+        'posts_per_page' => 8,
+		'paged' => $paged,
+        'tax_query' => array(
+        array(
+            'taxonomy' => 'product_cat',
+            'field'    => 'slug',
+            'terms'    => 'tool-bags-top-sellers',
+          
+        ),
+    ),
+              
+) 
+);
+	 
+echo '<div class="grid_tap">';
+while ( $loop->have_posts() ) : $loop->the_post();
+
+$product_id            = get_the_ID();
+$link                  = get_post_permalink($product_id);
+$title                 = get_the_title();
+$product               = wc_get_product( $product_id );
+$product_thumbnail_url = get_the_post_thumbnail_url( $product_id, 'medium' );
+$product_title         = get_the_title();
+$product_link          = get_the_permalink();
+$regular_price     = $product->get_regular_price();
+$stock_status      = $product->get_stock_status();
+if($stock_status=='outofstock'){
+	$stock_st="Out of stock";
+}
+else{
+		$stock_st="In stock";
+}
+$data= ' <div class="stock">
+    <span class="stock_status">'.$stock_st.'</span>
+    
+   </div>';
+echo '
+             <div class="blogs-inner">
+          
+                <div class="blog-image">
+                       <a target="_blank" href="'.$link.'"><img src="'.esc_url($product_thumbnail_url).'"></a>
+					   
+					  
+               </div>
+             <div class="text_info">
+     <div class="title-blog">  <h5 class="tmnf_title1"><a target="_blank" href="'.$link.'">'.$title.'</a></h5></div>
+     
+  
+    <div class="price_1">
+    <span class="woocommerce-Price-currencySymbol">$</span>
+    '.$regular_price.'
+     
+   </div> ';
+	
+	if($stock_st=="Out of stock")
+	{
+		echo $data;
+	}
+	else {
+		echo '<div class="stock_d">
+    <span class="stock_st">'.$stock_st.'</span>
+    
+   </div>';
+	}
+
+echo  '
+    <div class="product-blog">  <h5 class="product_view1"><a target="_blank" href="'.$link.'">View Product</a></h5></div>
+    </div>
+              
+            </div>
+			
+			
+         
+    ';
+	
+	
+	
+endwhile;
+echo"</div>";
+	
+//$current_url = home_url( $wp->request );
+
+add_query_arg( array(
+'post_type' => 'product',
+	  'tax_query' => array(
+        array(
+            'taxonomy' => 'product_cat',
+            'field'    => 'slug',
+            'terms'    => 'tool-bags-top-sellers',
+          
+        ),
+    ),
+	
+), '/wp-admin/admin-ajax.php');
+$previous_link_url = paginate_links( array(
+'base' => str_replace( 999999999, '%#%', esc_url( get_pagenum_link( 999999999 ) ) ),
+'total' => $loop->max_num_pages,
+'current' => max(
+1, $paged ),
+'format' => 'page/%#%',
+'add_args' => false,
+'show_all' => false,
+'type' => 'plain',
+'end_size' => 2,
+'mid_size' => 1,
+'next_or_number' => 'next_and_number', # activate parameter overloading
+'before' => '<p>',
+'after' => '</p>',
+'prev_next' => true,
+'prev_text' => sprintf( '<i></i> %1$s', __( 'Previous', 'text-domain' ) ),
+'next_text' => sprintf( '%1$s <i></i>', __( 'Next', 'text-domain' ) ),
+'add_fragment' => '',
+) );
+
+
+echo '<div class="text-center">
+<div class="pagination">'.$previous_link_url.'</div></div>';
+	
+wp_reset_query();
+
+}
+
+
+
+
+
